@@ -76,14 +76,15 @@ class EventLog:
         result = self.archiver.resultat
         videos = len({v.key for capture in (self.ena.captures or []) for v in capture[1]})
         self.progress.lines[1] = Text.from_markup(
-            f"  [green]{result.fichiers_ecrits} fichier(s) archivé(s)[/] · {result.fichiers_sautes} déjà là"
+            f"  [green]{result.fichiers_ecrits} fichier(s) archivé(s)[/] · {self.ena.printed_pages} page(s) en PDF"
+            f" · {result.fichiers_sautes} déjà là"
             + (f" · [red]{len(result.echecs)} échec(s)[/]" if result.echecs else "")
             + (f" · [cyan]{videos} vidéo(s) repérée(s) dans ce cours[/]" if videos else "")
         )
 
     def put(self, event) -> None:
         kind, text = event
-        if kind == "visite" or kind == "fichier":
+        if kind in ("visite", "fichier"):
             self.refresh(text)
         elif kind == "saute":
             self.refresh()
@@ -327,6 +328,7 @@ class App:
             title="Archivage",
         ))
         interrupted = False
+        printed_before = self.ena.printed_pages
         columns = (SpinnerColumn(), TextColumn("{task.description}"), BarColumn(), MofNCompleteColumn(),
                    TextColumn("· écoulé"), TimeElapsedColumn(), TextColumn("· reste ≈"), TimeRemainingColumn())
         with StatusProgress(*columns, console=console) as progress:
@@ -337,7 +339,8 @@ class App:
                 record = self.inventory.get_or_add(course)
                 log.course = f"{course.session.libelle} · {course.dossier()}"
                 log.refresh("…")
-                before = (archiver.resultat.fichiers_ecrits, archiver.resultat.fichiers_sautes, len(archiver.resultat.echecs))
+                before = (archiver.resultat.fichiers_ecrits, archiver.resultat.fichiers_sautes, len(archiver.resultat.echecs),
+                          self.ena.printed_pages)
                 try:
                     self._archive_course_with_retry(archiver, course, record, types, rescan, log, progress)
                 except KeyboardInterrupt:
@@ -354,27 +357,29 @@ class App:
                     progress.console.print(f"[red]✗ {course.dossier()} : {error}[/]")
                 finally:
                     self._save_inventory()
-                progress.console.print(self._course_summary(log.course, archiver, before, types, record))
+                progress.console.print(self._course_summary(log.course, archiver, self.ena, before, types, record))
                 progress.advance(overall)
             if any("grades" in plan[c.id_site] for c in courses):
                 archiver._ecrire_synthese("(archive)", "notes-tous-cours.csv",
                                           lambda: consolider_notes(self.folder, self.folder / "notes-tous-cours.csv"))
         result = archiver.resultat
         console.print(Panel.fit(
-            f"[green]{result.fichiers_ecrits}[/] fichier(s) archivé(s) · {result.fichiers_sautes} déjà présent(s) · "
+            f"[green]{result.fichiers_ecrits}[/] fichier(s) archivé(s) · [green]{self.ena.printed_pages - printed_before}[/] page(s) en PDF · "
+            f"{result.fichiers_sautes} déjà présent(s) · "
             + (f"[red]{len(result.echecs)} échec(s)[/]" if result.echecs else "aucun échec"),
             title="Archivage interrompu" if interrupted else "Archivage terminé",
         ))
         return result, interrupted
 
     @staticmethod
-    def _course_summary(label: str, archiver, before: tuple, types: set, record: CourseVideos) -> str:
+    def _course_summary(label: str, archiver, ena, before: tuple, types: set, record: CourseVideos) -> str:
         written = archiver.resultat.fichiers_ecrits - before[0]
         skipped = archiver.resultat.fichiers_sautes - before[1]
         failed = len(archiver.resultat.echecs) - before[2]
+        printed = ena.printed_pages - before[3]
         parts = []
         if types - {"videos"}:
-            parts.append(f"{written} fichier(s)" + (f", {skipped} déjà là" if skipped else ""))
+            parts.append(f"{written} fichier(s), {printed} page(s) en PDF" + (f", {skipped} déjà là" if skipped else ""))
         if "videos" in types:
             parts.append(f"{len(record.videos)} vidéo(s) repérée(s) ({human_size(record.total_size())})")
         line = f"  [green]✓[/] {label} : " + " · ".join(parts)

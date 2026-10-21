@@ -124,6 +124,7 @@ class VideoAwareEna(Ena):
         self.missing: list[str] = []
         self.hide_window = False
         self._hidden_page = None
+        self.printed_pages = 0
         try:
             session.contexte.add_init_script(MUTE_SCRIPT)
         except Exception:  # noqa: BLE001
@@ -172,6 +173,7 @@ class VideoAwareEna(Ena):
                 print_background=True,
                 margin={"top": margin, "bottom": margin, "left": margin, "right": margin},
             )
+        self.printed_pages += 1
 
     def _read_player(self) -> list:
         page = self.session.page
