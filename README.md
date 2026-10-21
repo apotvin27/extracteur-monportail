@@ -17,7 +17,7 @@ le tout dans un `.zip`.
 
 | Interface | Lancer | Ce qu'elle fait |
 |---|---|---|
-| **Terminal** (menu, recommandé) | `python -m monportail`, ou double-clic sur `Lancer-archiveur.bat` | Tu choisis les cours **et** le type de contenu (vidéos, documents, pages, évaluations, travaux remis, notes, plan de cours), cours par cours si tu veux. Progression, temps restant, état de l'archive, reprise. **Archive aussi les vidéos.** Voir [GUIDE-ARCHIVEUR.md](GUIDE-ARCHIVEUR.md). |
+| **Terminal** (menu, recommandé) | `Archiveur-monPortail-terminal.exe` (page [Releases](../../releases/latest), sans rien installer), ou `python -m monportail` | Tu choisis les cours **et** le type de contenu (vidéos, documents, pages, évaluations, travaux remis, notes, plan de cours), cours par cours si tu veux. Progression, temps restant, état de l'archive, reprise. **Archive aussi les vidéos.** Voir [GUIDE-ARCHIVEUR.md](GUIDE-ARCHIVEUR.md). |
 | **Fenêtre** (interface d'origine) | l'exécutable ci-dessous, ou `python -m extracteur` | Tout archiver en un clic, ou une session, ou un cours. Sans les vidéos. |
 
 Les deux utilisent le même moteur de navigation et écrivent la même archive

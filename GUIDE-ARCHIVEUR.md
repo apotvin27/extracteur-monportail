@@ -4,7 +4,9 @@ Une interface en terminal par-dessus le moteur de l'extracteur (l'interface fen�
 
 ## Lancer
 
-**Windows, le plus simple :** double-clique sur `Lancer-archiveur.bat` (la première fois, il installe ce qu'il faut).
+**Windows, sans rien installer :** télécharge `Archiveur-monPortail-terminal.exe` sur la page [Releases](../../releases/latest), puis double-clique dessus. Le navigateur est inclus ; le premier lancement le prépare (environ 30 secondes). Windows peut afficher « Windows a protégé votre ordinateur » : l'exécutable n'est pas signé, clique sur *Informations complémentaires*, puis *Exécuter quand même*.
+
+**Avec Python :** double-clique sur `Lancer-archiveur.bat` (la première fois, il installe ce qu'il faut).
 
 **Dans un terminal**, dans le dossier du projet :
 
@@ -59,3 +61,11 @@ python -m monportail --fenetre-visible
 - Les vidéos YouTube/Vimeo intégrées par un prof ne sont pas téléchargées. Annonces et forums non plus.
 
 Le matériel reste la propriété de tes enseignants : archive pour ton usage personnel, ne redistribue pas.
+
+## Construire l'exécutable
+
+L'exécutable est construit par GitHub Actions (`.github/workflows/terminal-executable.yml`) à chaque étiquette `v*`, et publié dans une Release. Pour le construire à la main, suivre la procédure du README avec `--interface terminal` :
+
+```
+python construction\construire.py --interface terminal --sortie C:\build\sortie
+```
